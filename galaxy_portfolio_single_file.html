@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Galaxy — Naitik</title>
+  <style>
+    :root{--bg:#000;--muted:#9aa4b2;--card:rgba(255,255,255,0.04);--accent1:#8b5cf6;--accent2:#06b6d4}
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    a{color:inherit;text-decoration:none}
+    .container{max-width:1100px;margin:0 auto;padding:28px}
+    header{position:sticky;top:0;background:linear-gradient(180deg,rgba(0,0,0,0.65),rgba(0,0,0,0.25));backdrop-filter:blur(6px);border-bottom:1px solid rgba(255,255,255,0.04);z-index:40}
+    .header-inner{display:flex;align-items:center;justify-content:space-between;padding:12px 0}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#000;background:linear-gradient(135deg,var(--accent1),var(--accent2))}
+    nav a{margin:0 8px;font-size:15px;color:var(--muted)}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#000;font-weight:600}
+
+    main{padding:36px 0}
+    .hero{display:grid;grid-template-columns:1fr 420px;gap:32px;align-items:center}
+    .hero h1{font-size:40px;margin:0 0 12px;line-height:1.02}
+    .hero p{color:var(--muted);margin:0}
+    .pills{display:flex;gap:10px;margin-top:18px}
+    .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:20px}
+    .stat{background:var(--card);padding:12px;border-radius:12px}
+    .card{background:rgba(255,255,255,0.02);padding:18px;border-radius:14px;border:1px solid rgba(255,255,255,0.04)}
+
+    /* Projects */
+    .controls{display:flex;align-items:center;gap:12px;justify-content:space-between}
+    .search{display:flex;align-items:center;background:rgba(255,255,255,0.02);padding:8px;border-radius:999px;gap:8px}
+    .search input{background:transparent;border:0;color:inherit;outline:none;width:220px}
+    .filters{display:flex;gap:8px}
+    .filter{padding:7px 12px;border-radius:999px;background:rgba(255,255,255,0.03);cursor:pointer}
+    .filter.active{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#000}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;margin-top:18px}
+    .project{padding:14px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:transform .18s ease,box-shadow .18s}
+    .project:hover{transform:translateY(-6px);box-shadow:0 10px 30px rgba(0,0,0,.6)}
+    .tag{display:inline-block;padding:5px 8px;border-radius:6px;background:rgba(255,255,255,0.03);font-size:12px;margin-right:6px}
+
+    /* Modal */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:60}
+    .modal{width:92%;max-width:900px;background:rgba(0,0,0,0.9);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.04)}
+
+    /* Orbital */
+    .orbital{display:flex;align-items:center;justify-content:center;height:280px}
+    .orbit-wrap{width:220px;height:220px;position:relative}
+    .planet{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent1),var(--accent2));position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+    .sat{position:absolute;left:50%;top:50%;transform-origin: -60px 0;}
+    .sat svg{transform-origin: -60px 0;animation:spin 12s linear infinite}
+    @keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+
+    /* canvas fullscreen bg */
+    canvas#stars{position:fixed;inset:0;z-index:-1}
+
+    footer{text-align:center;color:var(--muted);margin:56px 0 16px}
+
+    /* responsive */
+    @media(max-width:880px){.hero{grid-template-columns:1fr}.orbital{height:200px}.search input{width:120px}}
+  </style>
+</head>
+<body>
+  <canvas id="stars"></canvas>
+  <header>
+    <div class="container header-inner">
+      <div class="brand">
+        <div class="logo">G</div>
+        <div>
+          <div style="font-weight:700">Galaxy — Personal</div>
+          <div style="font-size:12px;color:var(--muted)">Projects · Experiments · Notes</div>
+        </div>
+      </div>
+      <nav>
+        <a href="#projects">Projects</a>
+        <a href="#skills">Skills</a>
+        <a href="#about">About</a>
+        <a class="btn" id="resumeBtn">Resume</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div>
+        <h1 id="greeting">Hi, I'm Naitik — I build clean code and stellar visuals.</h1>
+        <p>A civil engineering student turned web tinkerer. I craft interactive demos, tools and portfolio pieces that feel buttery-smooth. Explore projects below — filter, launch demos, inspect source and play with live previews.</p>
+
+        <div class="pills">
+          <a href="#projects" class="btn">Explore Projects</a>
+          <a class="filter" id="contactless">No contact (static)</a>
+        </div>
+
+        <div class="stats">
+          <div class="stat"><div style="color:var(--muted);font-size:13px">Years Coding</div><div style="font-weight:700">3</div></div>
+          <div class="stat"><div style="color:var(--muted);font-size:13px">Live Projects</div><div style="font-weight:700">12</div></div>
+          <div class="stat"><div style="color:var(--muted);font-size:13px">Open source</div><div style="font-weight:700">8</div></div>
+          <div class="stat"><div style="color:var(--muted);font-size:13px">Internship Goal</div><div style="font-weight:700">Microsoft</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="orbital">
+          <div class="orbit-wrap">
+            <div class="planet"></div>
+            <div class="sat">
+              <svg width="200" height="200" viewBox="0 0 200 200"><ellipse cx="100" cy="100" rx="70" ry="30" fill="none" stroke="rgba(255,255,255,0.08)"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="projects" style="margin-top:44px">
+      <div class="controls">
+        <h2 style="margin:0;font-size:20px">Projects</h2>
+        <div style="display:flex;gap:12px;align-items:center">
+          <div class="search"><svg width="16" height="16" viewBox="0 0 24 24" style="opacity:.9"><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.3" fill="none"/></svg><input id="search" placeholder="Search projects..."/></div>
+          <div class="filters" id="filters"></div>
+        </div>
+      </div>
+
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <section id="skills" style="margin-top:44px">
+      <h2>Skills & Tools</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px">
+        <div class="card"><strong>Languages</strong><div style="margin-top:8px;color:var(--muted)">C++, Python, HTML/CSS, JS</div></div>
+        <div class="card"><strong>Frameworks</strong><div style="margin-top:8px;color:var(--muted)">React, Tailwind, TensorFlow, OpenCV</div></div>
+        <div class="card"><strong>Other</strong><div style="margin-top:8px;color:var(--muted)">Git, LaTeX, MATLAB, SQL</div></div>
+      </div>
+    </section>
+
+    <section id="about" style="margin-top:44px">
+      <h2>About</h2>
+      <div style="margin-top:10px;color:var(--muted);max-width:780px">I study civil engineering at IIT Bombay, but I live in the overlap between structural analysis and interactive web — building delightful visual experiences and robust, well-tested code. I like making projects that teach something and look beautiful.</div>
+    </section>
+
+    <footer>Crafted with care · Galaxy Theme</footer>
+  </main>
+
+  <!-- Modal -->
+  <div id="modalRoot" style="display:none"></div>
+
+  <script>
+    /* ---------- starfield background ---------- */
+    (function(){
+      const c = document.getElementById('stars');
+      const ctx = c.getContext('2d');
+      let w= c.width = innerWidth, h = c.height = innerHeight;
+      const stars = Array.from({length:220}).map(()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.4+0.2,d:Math.random()*0.03+0.005,off:Math.random()*1000}));
+      function resize(){w=c.width=innerWidth;h=c.height=innerHeight}
+      addEventListener('resize',resize);
+      let raf=0;
+      function draw(){
+        ctx.clearRect(0,0,w,h);
+        const g=ctx.createLinearGradient(0,0,w,h);g.addColorStop(0,'rgba(6,9,23,0.85)');g.addColorStop(0.4,'rgba(15,13,36,0.7)');g.addColorStop(1,'rgba(4,3,7,0.9)');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+        for(const s of stars){
+          ctx.beginPath();const a=0.8*(0.5+Math.sin((Date.now()+s.off)/1000)*0.5);ctx.fillStyle=`rgba(255,255,255,${a})`;ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();s.x+=Math.cos(Date.now()*0.0002+s.x)*s.d*2;s.y+=Math.sin(Date.now()*0.0001+s.y)*s.d*1.5;
+          if(s.x>w+10) s.x=-10; if(s.x<-10) s.x=w+10; if(s.y>h+10) s.y=-10; if(s.y<-10) s.y=h+10;
+        }
+        // nebula
+        const rg=ctx.createRadialGradient(w*0.2,h*0.3,10,w*0.2,h*0.3,600);rg.addColorStop(0,'rgba(110,24,255,0.08)');rg.addColorStop(1,'rgba(110,24,255,0)');ctx.fillStyle=rg;ctx.fillRect(0,0,w,h);
+        raf=requestAnimationFrame(draw);
+      }
+      draw();
+      // cleanup on unload
+      addEventListener('visibilitychange',()=>{ if(document.hidden) cancelAnimationFrame(raf); else raf=requestAnimationFrame(draw)});
+    })();
+
+    /* ---------- data + UI ---------- */
+    const projects = [
+      {id:1,title:'Marble Motion',emoji:'🪨',description:'Cinematic marble slow-motion reel generator.',long:'A time-lapse and slow-motion rendering tool for marble textures and product presentation.',tags:['web','design'],live:'#',repo:'#'},
+      {id:2,title:'Edge Detector',emoji:'🔍',description:'OpenCV experiment for edge detection and filters.',long:'Real-time webcam edge detection with custom filters and export.',tags:['cv','ml'],live:'#',repo:'#'},
+      {id:3,title:'Neon Terminal',emoji:'🖥️',description:'A browser-based terminal with small dev tools.',long:'Terminal emulator with shortcuts, file viewer and sample projects.',tags:['web'],live:'#',repo:'#'},
+      {id:4,title:'Pose Playground',emoji:'🤖',description:'Pose estimation + small visuals',long:'A pose estimation demo using TensorFlow.js and webcam.',tags:['ml','cv'],live:'#',repo:'#'},
+      {id:5,title:'Portfolio CMS',emoji:'📚',description:'A tiny CMS to upload and manage projects.',long:'Local-only CMS to manage project metadata and images',tags:['web','design'],live:'#',repo:'#'}
+    ];
+
+    const filters = ['all','web','ml','cv','design'];
+    const filtersEl = document.getElementById('filters');
+    const grid = document.getElementById('grid');
+    const search = document.getElementById('search');
+    let activeFilter = 'all';
+
+    function renderFilters(){
+      filtersEl.innerHTML='';
+      filters.forEach(f=>{
+        const b = document.createElement('button');b.className='filter'+(f===activeFilter?' active':'');b.textContent=f; b.onclick=()=>{activeFilter=f;renderFilters();renderGrid();};filtersEl.appendChild(b);
+      })
+    }
+    function matches(p,q){return p.title.toLowerCase().includes(q)||p.description.toLowerCase().includes(q)}
+    function renderGrid(){
+      const q = (search.value||'').toLowerCase();
+      const rows = projects.filter(p=> (activeFilter==='all'||p.tags.includes(activeFilter)) && matches(p,q));
+      grid.innerHTML='';
+      rows.forEach(p=>{
+        const el = document.createElement('article');el.className='project';
+        el.innerHTML = `<div style="display:flex;gap:12px"><div style="width:56px;height:56px;border-radius:10px;background:linear-gradient(90deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;color:#000;font-weight:700">${p.emoji}</div><div><h3 style="margin:0">${p.title}</h3><p style="margin:6px 0;color:var(--muted);font-size:13px">${p.description}</p><div>${p.tags.map(t=>`<span class=\"tag\">${t}</span>`).join('')}</div></div></div>`;
+        el.onclick=()=>openModal(p);
+        grid.appendChild(el);
+      })
+    }
+    search.addEventListener('input',()=>renderGrid());renderFilters();renderGrid();
+
+    /* ---------- modal ---------- */
+    function openModal(p){
+      const root = document.getElementById('modalRoot');
+      root.style.display='block';
+      root.innerHTML = `<div class=\"modal-backdrop\"> <div class=\"modal\"> <div style=\"display:flex;justify-content:space-between;align-items:center\"> <div><h2 style=\"margin:0\">${p.title}</h2><div style=\"color:var(--muted);margin-top:6px\">${p.tags.join(' · ')}</div></div><div><button id=\"closeModal\" style=\"background:transparent;border:0;color:var(--muted);font-weight:700;cursor:pointer\">✕</button></div></div><div style=\"margin-top:12px;color:var(--muted)\">${p.long}</div><div style=\"margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px\"><div style=\"background:rgba(255,255,255,0.02);padding:10px;border-radius:8px;text-align:center\">Preview placeholder</div><div style=\"background:rgba(255,255,255,0.02);padding:10px;border-radius:8px\"><strong>Tech</strong><div style=\"margin-top:8px;color:var(--muted)\">${p.tags.join(', ')}</div></div></div></div></div>`;
+      document.getElementById('closeModal').onclick = closeModal;
+      document.querySelector('.modal-backdrop').onclick = (e)=>{ if(e.target.classList.contains('modal-backdrop')) closeModal() };
+    }
+    function closeModal(){ const root=document.getElementById('modalRoot'); root.style.display='none'; root.innerHTML=''; }
+
+    // resume button placeholder
+    document.getElementById('resumeBtn').onclick = ()=>{ window.open('resume.pdf','_blank') };
+
+    // smooth in-view animations (simple) — fade in sections
+    document.querySelectorAll('section').forEach((s,i)=>{ s.style.opacity=0; s.style.transform='translateY(8px)'; setTimeout(()=>{ s.style.transition='all .6s cubic-bezier(.2,.9,.2,1)'; s.style.opacity=1; s.style.transform='translateY(0)' }, 120*i) });
+
+    // keyboard accessibility: Esc closes modal
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeModal(); });
+  </script>
+</body>
+</html>
